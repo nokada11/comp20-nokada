@@ -18,16 +18,16 @@
 	var caption = document.getElementById("lyrics");
 
 	video.addEventListener("timeupdate", function(){
-		if (video.currentTime < 4.2) {
+		if (video.currentTime < 4.0) {
 			caption.innerHTML ="";
 		}
-		else if (video.currentTime > 4.2 && video.currentTime < 5.9) {
+		else if (video.currentTime > 4.0 && video.currentTime < 5.9) {
 			caption.innerHTML = "<h3>Who controls the British crown?</h3>";
 		}
-		else if (video.currentTime > 5.9 && video.currentTime < 7.9) {
+		else if (video.currentTime > 5.9 && video.currentTime < 8.1) {
 			caption.innerHTML = "<h3>Who keeps the metric system down?</h3>";
 		}
-		else if (video.currentTime > 7.9 && video.currentTime < 12.3) {
+		else if (video.currentTime > 8.1 && video.currentTime < 12.3) {
 			caption.innerHTML = "<h3>We do, we do!</h3>";
 		}
 		else if (video.currentTime > 12.3 && video.currentTime < 14.3) {

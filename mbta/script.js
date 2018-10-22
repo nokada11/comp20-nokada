@@ -1,5 +1,3 @@
-var map;
-
 function initMap() {
 	var stations = {
 		southStation: {lat: 42.352271, lng: -71.05524200000001},
@@ -26,63 +24,37 @@ function initMap() {
 		braintree: {lat: 42.2078543, lng: -71.0011385}
 	};
 
-	map = new google.maps.Map(document.getElementById('map'), {
+	var pins = {};
+
+	var map = new google.maps.Map(document.getElementById('map'), {
 		  center: stations["southStation"],
 		  zoom: 11
 	});
 
-	var custom = 'static/images/pin.png';
+	placePins(map, stations, pins);
 
-	for (var key in stations) {
-		var Pin = new google.maps.Marker({position: stations[key], map: map});
-	}
-	
 	var redLineStations = [
 		stations["alewife"], stations["davis"], stations["porterSquare"], stations["harvardSquare"], 
 		stations["centralSquare"], stations["kendallMIT"], stations["charlesMGH"], stations["parkStreet"], 
 		stations["downtownCrossing"], stations["southStation"], stations["broadway"], 
 		stations["andrew"], stations["jfkUMass"]
 	];
-	var redLine = new google.maps.Polyline({
-		path: redLineStations,
-		geodesic: true,
-		strokeColor: '#FF0000',
-		strokeOpacity: 1.0,
-		strokeWeight: 2
-	});
-
-	redLine.setMap(map);
 
 	var braintreeBranchStations = [
 		stations["jfkUMass"], stations["northQuincy"], stations["wollaston"], stations["quincyCenter"], 
 		stations["quincyAdams"], stations["braintree"]
 	];
 
-	var braintreeBranch = new google.maps.Polyline({
-		path: braintreeBranchStations,
-		geodesic: true,
-		strokeColor: '#FF0000',
-		strokeOpacity: 1.0,
-		strokeWeight: 2
-	});
-
-	braintreeBranch.setMap(map);
-
 	var ashmontBranchStations = [
 		stations["jfkUMass"], stations["savinHill"], stations["fieldsCorner"], stations["shawmut"], stations["ashmont"]
 	];
 
-	var ashmontBranch = new google.maps.Polyline({
-		path: ashmontBranchStations,
-		geodesic: true,
-		strokeColor: '#FF0000',
-		strokeOpacity: 1.0,
-		strokeWeight: 2
-	});
+	setPolyLine(map, redLineStations);
+	setPolyLine(map, braintreeBranchStations);
+	setPolyLine(map, ashmontBranchStations);
 
-	ashmontBranch.setMap(map);
-	
 	infoWindow = new google.maps.InfoWindow;
+	stationWindow = new google.maps.InfoWindow;
 
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(position) {
@@ -90,7 +62,6 @@ function initMap() {
 			lat: position.coords.latitude,
 			lng: position.coords.longitude
 		};
-
 		var yourLocation = new google.maps.Marker({position: currentPos, map: map});
 		infoWindow.setPosition(currentPos);
 		infoWindow.setContent('Hello World');
@@ -104,13 +75,70 @@ function initMap() {
 		handleLocationError(false, infoWindow, map.getCenter());
 	}
 
-	function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-		infoWindow.setPosition(currentPos);
-		infoWindow.setContent(browserHasGeolocation ?
-            'Error: The Geolocation service failed.' :
-            'Error: Your browser doesn\'t support geolocation.');
-		infoWindow.open(map);
+	for (var key in stations) {
+		pins[key].addListener('click', function() {
+			stationWindow.setPosition(stations[key]);
+			stationWindow.setContent('Aiya!');
+			stationWindow.open(map);
+			console.log("Aiya!!!!");
+		});
 	}
-
-
 }
+
+
+
+function placePins(map, stations, pins) {
+	for (var key in stations) {
+		pins[key] = new google.maps.Marker({position: stations[key], map: map});
+	}
+}
+
+function setPolyLine(map, chosenStations) {
+	var redLine = new google.maps.Polyline({
+		path: chosenStations,
+		geodesic: true,
+		strokeColor: '#FF0000',
+		strokeOpacity: 1.0,
+		strokeWeight: 2
+	});
+
+	redLine.setMap(map);
+}
+
+function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+	infoWindow.setPosition(pos);
+	infoWindow.setContent(browserHasGeolocation ?
+        'Error: The Geolocation service failed.' :
+        'Error: Your browser doesn\'t support geolocation.');
+	infoWindow.open(map);
+}
+
+
+/*
+
+request = new XMLHttpRequest();
+request.open("GET", "https://chicken-of-the-sea.herokuapp.com/redline/schedule.json?stop_id=place-sstat", true);
+
+request.onreadystatechange = function() {
+	if (request.readyState == 4 && request.status == 200) {
+		theData = request.responseText;
+		messages = JSON.parse(theData);
+		returnHTML = "<ul>";
+		for (i = 0; i < messages.length; i++) {
+			returnHTML += "<li>" + messages[i].content + " by " + messages[i].username + 
+			"</li>";
+		}
+		returnHTML += "</ul>";
+		document.getElementById("messages").innerHTML =returnHTML;
+	}
+	else if (request.readyState == 4 && request.status != 200) {
+		document.getElementById("messages").innerHTML = "Whoops, something went terribly wrong!";
+	}
+	else if (request.readyState == 3) {
+		document.getElementById("messages").innerHTML = "Come back soon!";
+	}
+}
+
+request.send();
+});
+*/

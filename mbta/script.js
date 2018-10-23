@@ -29,11 +29,16 @@ function initMap() {
 		  zoom: 10
 	});
 
-	var infoWindow = new google.maps.InfoWindow;
-
 	for (var key in stations)
 	{
-		var marker = new google.maps.Marker({position: stations[key][0], map: map});
+		var icon = {
+			url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
+			size: new google.maps.Size(20, 20),
+			origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(0, 20)
+      	};
+
+		var marker = new google.maps.Marker({position: stations[key][0], map: map, icon: icon});
 		var stationWindow = new google.maps.InfoWindow;
 
 		google.maps.event.addListener(marker, 'click', (function(marker, key) {
@@ -89,7 +94,8 @@ function initMap() {
 	setPolyLine(map, redLineStations);
 	setPolyLine(map, braintreeBranchStations);
 	setPolyLine(map, ashmontBranchStations);
-	
+
+	var infoWindow = new google.maps.InfoWindow;
 
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(position) {
@@ -99,6 +105,35 @@ function initMap() {
 		};
 		var yourLocation = new google.maps.Marker({position: currentPos, map: map});
 		map.setCenter(currentPos);
+
+		var currentLat = currentPos.lat; 
+		var currentLng = currentPos.lng; 
+		var current = new google.maps.LatLng(currentLat, currentLng);
+		var closestStation;
+
+		var firstLat = stations["sstat"][0]["lat"];
+		var firstLng = stations["sstat"][0]["lng"];
+		var first = new google.maps.LatLng(firstLat, firstLng);
+		var shortest = google.maps.geometry.spherical.computeDistanceBetween(current, first);
+
+		for (var key in stations) {
+			var tempLat = stations[key][0]["lat"];
+			var tempLng = stations[key][0]["lng"];
+			var temp = new google.maps.LatLng(tempLat, tempLng);
+			var dist = google.maps.geometry.spherical.computeDistanceBetween(current, temp);
+
+			if (dist < shortest) {
+				shortest = dist;
+				closestStation = stations[key];
+			}
+		}
+
+		content = 'The closest stations is: ' + closestStation[1] + '<br>' + (shortest/1609).toFixed(2) + ' miles away';
+		infoWindow.setContent(content);
+		infoWindow.open(map, yourLocation);
+
+		setPolyLine(map, [currentPos, closestStation[0]]);
+
 	}, function() {
 		handleLocationError(true, infoWindow, map.getCenter());
 	});

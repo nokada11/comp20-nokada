@@ -1,4 +1,4 @@
-#COMP20 Assignment 2#
+#COMP20 Assignment 2
 Naoki Okada<br>
 All aspects of the assignment have been implemented correctly.
 

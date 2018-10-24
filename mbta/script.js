@@ -1,4 +1,5 @@
 function initMap() {
+	// List of all the stations
 	var stations = {
 		sstat: [{lat: 42.352271, lng: -71.05524200000001}, "South Station"],
 		andrw: [{lat: 42.330154, lng: -71.057655}, "Andrew"],
@@ -24,25 +25,21 @@ function initMap() {
 		brntn: [{lat: 42.2078543, lng: -71.0011385}, "Braintree"]
 	};
 
+	// Initializes the map
 	var map = new google.maps.Map(document.getElementById('map'), {
 		  center: stations["sstat"][0],
 		  zoom: 10
 	});
 
+	// Loops through each station
 	for (var key in stations)
 	{
-		var icon = {
-			url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
-			size: new google.maps.Size(20, 20),
-			origin: new google.maps.Point(0, 0),
-            anchor: new google.maps.Point(0, 20)
-      	};
-
-		var marker = new google.maps.Marker({position: stations[key][0], map: map, icon: icon});
+		var marker = new google.maps.Marker({position: stations[key][0], map: map, icon: 'images/icon.png'});
 		var stationWindow = new google.maps.InfoWindow;
 
 		google.maps.event.addListener(marker, 'click', (function(marker, key) {
 	        return function() {
+	        	// Gets the station info
 	        	request = new XMLHttpRequest();
 	        	request.open("GET", "https://chicken-of-the-sea.herokuapp.com/redline/schedule.json?stop_id=place-" + key, true);
 
@@ -53,28 +50,49 @@ function initMap() {
 	        		if (request.readyState == 4 && request.status == 200) {
 	        			theData = request.responseText;
 	        			messages = JSON.parse(theData);
-	        			content = content + stations[key][1] + '<br>Arrivals';
 
-	        			for (i = 0; i < 39; i++) {
+	        			content = content + stations[key][1] + '<br>Upcoming Trains';
+
+	        			for (i = 0; i < 22; i++) {
 	        				content = content + '\xa0';
 	        			}
 
-	        			content +='Departures<br>';
+	        			content +='Directions<br>';
+
+	        			var unavailable = true;
 
 	        			for (i = 0; i < messages.data.length; i++) {
-	        				content = content + messages.data[i].attributes.arrival_time + '\xa0\xa0\xa0';
-	        				content = content + messages.data[i].attributes.departure_time + '<br>';
+	        				if (messages.data[i].attributes.departure_time != null)
+	        				{
+	        					content = content + messages.data[i].attributes.departure_time + '\xa0\xa0\xa0';
+	        					unavailable = false;
+
+	        					if (messages.data[i].attributes.direction_id == '0') {
+	        						content = content + 'Southbound (Ashmont/Braintree)<br>';
+	        					} else {
+	        						content = content + 'Northbound (Alewife)<br>';
+	        					}
+	        				}
 	        			}
-	        		}
 
-	        		stationWindow.setContent(content);
+	        			if (unavailable == true) {
+	        				content = content + 'Not available';
+	        			}
+
+	        			stationWindow.setContent(content);
+	        		} else if (request.readyState == 4 && request.status != 200) {
+						stationWindow.setContent("Woops, something went wrong...");
+					}
+					else if (request.readyState == 3) {
+						stationWindow.setContent("Come back soon!");
+					}		
 	        	};
-
 	            stationWindow.open(map, marker);
 	        }
 	    })(marker, key));
 	}
 	
+	// Polylines
 	var redLineStations = [
 		stations["alfcl"][0], stations["davis"][0], stations["portr"][0], stations["harsq"][0], 
 		stations["cntsq"][0], stations["knncl"][0], stations["chmnl"][0], stations["pktrm"][0], 
@@ -97,6 +115,7 @@ function initMap() {
 
 	var infoWindow = new google.maps.InfoWindow;
 
+	// Detects the current geolocation
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(position) {
 			var currentPos = {
@@ -106,16 +125,19 @@ function initMap() {
 		var yourLocation = new google.maps.Marker({position: currentPos, map: map});
 		map.setCenter(currentPos);
 
+		// Sets the current location
 		var currentLat = currentPos.lat; 
 		var currentLng = currentPos.lng; 
 		var current = new google.maps.LatLng(currentLat, currentLng);
 		var closestStation;
 
+		// Sets the initial distance
 		var firstLat = stations["sstat"][0]["lat"];
 		var firstLng = stations["sstat"][0]["lng"];
 		var first = new google.maps.LatLng(firstLat, firstLng);
 		var shortest = google.maps.geometry.spherical.computeDistanceBetween(current, first);
 
+		// Compares the distance between your location and every station
 		for (var key in stations) {
 			var tempLat = stations[key][0]["lat"];
 			var tempLng = stations[key][0]["lng"];
@@ -128,15 +150,15 @@ function initMap() {
 			}
 		}
 
+		// Displays the information of the closest station
 		content = 'The closest stations is: ' + closestStation[1] + '<br>' + (shortest/1609).toFixed(2) + ' miles away';
 		infoWindow.setContent(content);
 		infoWindow.open(map, yourLocation);
-
 		setPolyLine(map, [currentPos, closestStation[0]]);
 
-	}, function() {
-		handleLocationError(true, infoWindow, map.getCenter());
-	});
+		}, function() {
+			handleLocationError(true, infoWindow, map.getCenter());
+		});
 	} else {
 		// Browser doesn't support Geolocation
 		handleLocationError(false, infoWindow, map.getCenter());

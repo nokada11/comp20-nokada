@@ -51,26 +51,22 @@ function initMap() {
 	        			theData = request.responseText;
 	        			messages = JSON.parse(theData);
 
-	        			content = content + stations[key][1] + '<br>Upcoming Trains';
-
-	        			for (i = 0; i < 22; i++) {
-	        				content = content + '\xa0';
-	        			}
-
-	        			content +='Directions<br>';
+	        			content = content + stations[key][1] + '<br>Upcoming Trains\xa0\xa0\xa0Directions<br>';
 
 	        			var unavailable = true;
 
 	        			for (i = 0; i < messages.data.length; i++) {
 	        				if (messages.data[i].attributes.departure_time != null)
 	        				{
-	        					content = content + messages.data[i].attributes.departure_time + '\xa0\xa0\xa0';
+	        					var time = messages.data[i].attributes.departure_time.split('T');
+	        					content = content + time[1].substring(0, 8) + 
+	        					'\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0';
 	        					unavailable = false;
 
 	        					if (messages.data[i].attributes.direction_id == '0') {
-	        						content = content + 'Southbound (Ashmont/Braintree)<br>';
+	        						content += 'Southbound (Ashmont/Braintree)<br>';
 	        					} else {
-	        						content = content + 'Northbound (Alewife)<br>';
+	        						content += 'Northbound (Alewife)<br>';
 	        					}
 	        				}
 	        			}

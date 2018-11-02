@@ -1,8 +1,8 @@
 # COMP 20 Lab 7
 Naoki Okada
 
-All aspects of the lab have been implemented correctly.
+All aspects of the lab have been implemented correctly. Entries entered are displayed and they are presereved when you leave the page. The messages are redisplayed upon return to the page.
 
-I refered to this link https://howtodoinjava.com/scripting/jquery/jquery-detect-if-enter-key-is-pressed/ to understand how to process when the enter key is pressed.
+I discussed the assignment with Anna Yuen.
 
 I approximately spent 1 hour on this assignment.

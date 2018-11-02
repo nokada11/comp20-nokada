@@ -9,22 +9,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
-            for (var i = 0; localStorage.length; i++) {
+            for (var i = 0; i < localStorage.length; i++) {
                 var time = localStorage.key(i);
-                var text = time + " - " + localStorage.getItem;
-                $('#log').prepend("<p>" + text + "<p>");
+                $('#log').prepend("<p>" + time + " - " + localStorage.getItem(time) + "<p>");
             }  
             
-            // $('#msg').keypress(function(event){
-            $('#msg').on('keypress', function(event) {
+            $('#msg').on('keypress', function(event){
                 if(event.keyCode == '13'){
-                    var time = new Date;
+                    var time = new Date();
                     var text = $('#msg').val();
                     $("#msg").val("");
-                    localStorage.setItem(time.getTime(), text);
+                    localStorage.setItem(time, text);
                     $("#log").prepend("<p>"+ time + " - " + text + "</p>");
                 }
-            });
+            })
         });
     </script>
 </head>

@@ -37,18 +37,18 @@ app.post('/submit', function(request, response) {
 			coll.insert(toInsert, function(error, saved) {
 				if (error) {
 					response.send(500);
+				} else {
+					db.collection('scores', function(er, collection) {
+						collection.find().sort( { score: -1 } ).limit(10).toArray(function(err, results) {
+							if (!err) {
+								response.send(results);
+							} else {
+								response.send([]);
+							}
+						});
+					});
 				}
 		    });
-		});
-
-		db.collection('scores', function(er, collection) {
-			collection.find().sort( { score: -1 } ).limit(10).toArray(function(err, results) {
-				if (!err) {
-					response.send(results);
-				} else {
-					response.send([]);
-				}
-			});
 		});
 	} else {
 		response.send('Invalid input');
@@ -79,7 +79,7 @@ app.get('/', function(request, response) {
 	db.collection('scores', function(er, collection) {
 		collection.find().sort( { score: -1 } ).toArray(function(err, results) {
 			if (!err) {
-				indexPage += "<!DOCTYPE HTML><html><head><title>2048 Game Center</title></head><body><h1>2048 Game Center</h1>";
+				indexPage += "<!DOCTYPE HTML><html><head><title>2048 Game Center</title><link rel='shortcut icon' href='#' /></head><body><h1>2048 Game Center</h1>";
 
 				indexPage += "</h4>User";
 				for (var i = 0; i < 3; i++) {

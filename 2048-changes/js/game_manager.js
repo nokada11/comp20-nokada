@@ -84,7 +84,6 @@ GameManager.prototype.actuate = function () {
   // Clear the state when the game is over (game over only, not win)
   if (this.over) {
     var username = prompt("Please enter your username:", "");
-    // var username = prompt("Please enter your username:", "");
 
     request = new XMLHttpRequest();
     request.open("POST", "https://ancient-basin-19354.herokuapp.com/submit", true);
@@ -100,11 +99,7 @@ GameManager.prototype.actuate = function () {
 
     request.onreadystatechange = function() {
       if (request.readyState == 4 && request.status == 200) {
-        // console.log("Data sent");
-      } else if (request.readyState == 4 && request.status != 200) {
-        // console.log("Something went wrong...");
-      } else if (request.readyState == 3) {
-        // console.log("Come back soon");
+        alert(request.responseText);
       } 
     }
 

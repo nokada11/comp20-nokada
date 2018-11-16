@@ -27,20 +27,32 @@ app.post('/submit', function(request, response) {
 
 	var toInsert = {
 		"username": request.body.username,
-		"score": request.body.score,
+		"score": parseInt(request.body.score),
 		"grid": request.body.grid,
 		"created_at": time
 	};
-	db.collection('scores', function(error, coll) {
-		coll.insert(toInsert, function(error, saved) {
-			if (error) {
-				response.send(500);
-			}
-			else {
-				response.send('<html><head><title>Thanks!</title></head><body><h2>Thanks for your submission!</h2></body></html>');
-			}
-	    });
-	});
+
+	if (toInsert.username!= "" && !isNaN(toInsert.score) && toInsert.grid!= "") {
+		db.collection('scores', function(error, coll) {
+			coll.insert(toInsert, function(error, saved) {
+				if (error) {
+					response.send(500);
+				}
+		    });
+		});
+
+		db.collection('scores', function(er, collection) {
+			collection.find().sort( { score: -1 } ).limit(10).toArray(function(err, results) {
+				if (!err) {
+					response.send(results);
+				} else {
+					response.send([]);
+				}
+			});
+		});
+	} else {
+		response.send('Invalid input');
+	}
 });
 
 app.get('/scores.json', function(request, response) {
@@ -50,7 +62,7 @@ app.get('/scores.json', function(request, response) {
 	var user = queryData.username;
 
 	db.collection('scores', function(er, collection) {
-		collection.find( {username: user}).limit(10).toArray(function(err, results) {
+		collection.find( {username: user}).sort( { score: -1 } ).limit(10).toArray(function(err, results) {
 			if (!err) {
 				response.send(results);
 			} else {
@@ -65,7 +77,6 @@ app.get('/', function(request, response) {
 	var indexPage = '';
 
 	db.collection('scores', function(er, collection) {
-		// collection.find().toArray(function(err, results) {
 		collection.find().sort( { score: -1 } ).toArray(function(err, results) {
 			if (!err) {
 				indexPage += "<!DOCTYPE HTML><html><head><title>2048 Game Center</title></head><body><h1>2048 Game Center</h1>";

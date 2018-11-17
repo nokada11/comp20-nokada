@@ -99,7 +99,15 @@ GameManager.prototype.actuate = function () {
 
     request.onreadystatechange = function() {
       if (request.readyState == 4 && request.status == 200) {
-        alert(request.responseText);
+        theData = request.responseText;
+        scores = JSON.parse(theData);
+        content = "High Scores\nName    Score Date\n";
+
+        for (i = 0; i < scores.length; i++) {
+          content = content + scores[i].username + " " + scores[i].score + " " + scores[i].created_at + "\n";
+        }
+
+        alert(content);
       } 
     }
 

@@ -56,17 +56,22 @@ app.post('/submit', function(request, response) {
 });
 
 app.get('/scores.json', function(request, response) {
-	response.set('Content-Type', 'text/html');
+	response.set('Content-Type', 'application/json');
 	var indexPage = '';
-	var queryData = url.parse(request.url, true).query;
+	var queryData = request.query;
 	var user = queryData.username;
 
+	if (user == []) {
+		response.send([]);
+		return;
+	}
+
 	db.collection('scores', function(er, collection) {
-		collection.find( {username: user}).sort( { score: -1 } ).limit(10).toArray(function(err, results) {
+		collection.find( {username: user}).sort( { score: -1 } ).toArray(function(err, results) {
 			if (!err) {
 				response.send(results);
 			} else {
-				response.send([]);
+				response.send(500);
 			}
 		});
 	});

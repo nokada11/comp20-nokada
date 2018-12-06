@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>COMP20 Assignment 4</title>
+	<style>
+		body {
+			margin: 0px 150px 0px 150px;
+		}
+		h1 {
+			text-align: center;
+		}
+		p, li, a{
+			font-size: 18px;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>COMP20 Assignment 4</h1>
+	<h2>Introduction</h2>
+	<p>
+		The product that I investigated into is a website that keeps track of various players' scores of the game 2048. 
+		When players are done playing the game, their scores are automatically sent to the website's backend. I was hired to find 
+		security and privacy vulnerabilities of the website.
+	</p>
+
+	<h2>Methodology</h2>
+	<p>
+		I used curl to send post requests to the website. To make get requests, I used Google Chrome and accessed https://morning-beyond-58862.herokuapp.com/ and https://morning-beyond-58862.herokuapp.com/scores.json. 
+		Moreover, I also loooked at the source code to find any flaws in it.
+	</p>
+
+	<h2>Abstract of Findings</h2>
+	<p>
+		The following security vulnerabilities have been found on the website.
+	</p>
+
+	<ul>
+	  <li>The server does not validate user input, thus it is possible to send malicious scripts to the database.</li>
+	  <li>It is possible to retrieve all data from the database.</li>
+	  <li>Anyone has access to the server, which means they can send data to the server.</li>
+	</ul>
+
+	<h2>Issues Found</h2>
+	<ul>
+		<li>Cross site scripting</li>
+		<ul>
+			<li>Location: the post('/submit') route where the server gets data from the user and sent it to the database</li>
+			<li>
+				Severity: This issue is very severe since it can allow malicious attackers to gain access to cookies or
+				compromises the website's content.
+			</li>
+			<li>
+				Description: I sent a post request to /submit and inserted a Javascript code snippet as my username. 
+				When I accessed get /, the website ran the script and gave an alert message that I included in the Javascript 
+				code snippet.
+			</li>
+			<li>Submitting Javascript code as my username:</li>
+			<img src = "xss.png" height="50" width="800"/>
+			<li>The JavaScript code executed:</li>
+			<img src = "alert.png" height="100" width="300"/>
+			<li>
+				Resolution: The developer should validate user input before inserting it to the database. Removing
+				special characters would solve this issue.
+			</li>
+		</ul>
+		<br>
+
+		<li>Database injection</li>
+		<ul>
+			<li>Location: the get('/scores.json') route where the server retrieves data from the database.</li>
+			<li>Severity: This issue is very severe since all data can be accessed by any user.</li>
+			<li>
+				Description: I was able to retrieve all data in the database using the query string "username[$ne]=wwwwww" when 
+				makign a get request from /scores.json.
+			</li>
+			<li>I got all data from the database by  querying "username [$ne]= wwwwww":</li>
+			<img src = "injection.png" height="250" width="750"/>
+			<li>
+				Resolution: Similar to the first one, the developer should validate the user's query string. Removing
+				all special characters would solve the issue.
+			</li>
+		</ul>
+		<br>
+
+		<li>No authentication</li>
+		<ul>
+			<li>Location: the post('/submit') route where the server gets data from the user and sent it to the database</li>
+			<li>
+				Severity: This is highly severe since anyone in the world can send post requests to the website and it will
+				accept all requests.
+			</li>
+			<li>
+				Description: CORS is turned on for any origin, which allows anyone to add data to the database. For example, using
+				curl from my own terminal allows me to input data
+			</li>
+			<li>Sending a request from my own terminal</li>
+			<img src = "curl.png" height="50" width="400"/>
+			<li>The data was successfully sent to the database</li>
+			<img src = "my_data.png" height="100" width="350"/>
+			<li>This line allows access from any origin</li>
+			<img src = "cors.png" height="25" width="200"/>
+			<li>Resolution: The developer should allow access from certain origins.</li>
+		</ul>
+	</ul>
+
+	<h2>Conclusion</h2>
+	<p>
+		Although the website does all the functions it needs to do, the level of security is quite low. In the future, the developer
+		can consider adding more input validation features to prevent malicious input. Furthermore, I would also add a user
+		authentication feature so that only certain people get access to the website.
+	</p>
+
+	<br>
+	<h2>References</h2>
+	<p>I used the following sources I found online:</p>
+	<ul>
+		<li><a href="https://blog.detectify.com/2015/12/16/what-is-cross-site-scripting-and-how-can-you-fix-it">https://blog.detectify.com/2015/12/16/what-is-cross-site-scripting-and-how-can-you-fix-it</a></li>
+	</ul>
+</body>
+</html>

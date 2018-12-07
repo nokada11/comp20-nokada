@@ -19,14 +19,14 @@
 	<h1>COMP20 Assignment 4</h1>
 	<h2>Introduction</h2>
 	<p>
-		The product that I investigated into is a website that keeps track of various players' scores of the game 2048. 
-		When players are done playing the game, their scores are automatically sent to the website's backend. I was hired to find 
-		security and privacy vulnerabilities of the website.
+		The product that I investigated into is a website developed by Tony Goss that keeps track of and displays various players' 
+		scores of the game 2048. When players are done playing the game, their scores, username and grid at the end of the game are 
+		automatically sent to the website's backend. I was hired to find security and privacy vulnerabilities of the website.
 	</p>
 
 	<h2>Methodology</h2>
 	<p>
-		I used curl to send post requests to the website. To make get requests, I used Google Chrome and accessed https://morning-beyond-58862.herokuapp.com/ and https://morning-beyond-58862.herokuapp.com/scores.json. 
+		I used curl to send post requests to the website. To send get requests, I used Google Chrome and accessed https://morning-beyond-58862.herokuapp.com/ and https://morning-beyond-58862.herokuapp.com/scores.json. 
 		Moreover, I also loooked at the source code to find any flaws in it.
 	</p>
 
@@ -36,9 +36,9 @@
 	</p>
 
 	<ul>
-	  <li>The server does not validate user input, thus it is possible to send malicious scripts to the database.</li>
-	  <li>It is possible to retrieve all data from the database.</li>
-	  <li>Anyone has access to the server, which means they can send data to the server.</li>
+	  <li>The server does not validate user input, thus it is possible for users to send malicious content to the server.</li>
+	  <li>It is possible to retrieve all data from the database, which could expose the data in an unsafe manner.</li>
+	  <li>Anyone has access to the server, which means even malicious hackers can send data to the server.</li>
 	</ul>
 
 	<h2>Issues Found</h2>
@@ -47,13 +47,13 @@
 		<ul>
 			<li>Location: the post('/submit') route where the server gets data from the user and sent it to the database</li>
 			<li>
-				Severity: This issue is very severe since it can allow malicious attackers to gain access to cookies or
+				Severity: This issue is highly severe since it allows malicious attackers to gain access to cookies or
 				compromises the website's content.
 			</li>
 			<li>
 				Description: I sent a post request to /submit and inserted a Javascript code snippet as my username. 
-				When I accessed get /, the website ran the script and gave an alert message that I included in the Javascript 
-				code snippet.
+				When I made a get request to /, the website ran the script and gave an alert message that I included in the
+				Javascript code snippet.
 			</li>
 			<li>Submitting Javascript code as my username:</li>
 			<img src = "xss.png" height="50" width="800"/>
@@ -61,7 +61,9 @@
 			<img src = "alert.png" height="100" width="300"/>
 			<li>
 				Resolution: The developer should validate user input before inserting it to the database. Removing
-				special characters would solve this issue.
+				special characters would solve this issue. For each string that needs to be validated, the developer can
+				add the following line:
+				var input = input.replace(/[^\w\s]/gi, '');
 			</li>
 		</ul>
 		<br>
@@ -69,16 +71,16 @@
 		<li>Database injection</li>
 		<ul>
 			<li>Location: the get('/scores.json') route where the server retrieves data from the database.</li>
-			<li>Severity: This issue is very severe since all data can be accessed by any user.</li>
+			<li>Severity: This issue is highly severe since all data can be accessed by any user.</li>
 			<li>
 				Description: I was able to retrieve all data in the database using the query string "username[$ne]=wwwwww" when 
 				makign a get request from /scores.json.
 			</li>
-			<li>I got all data from the database by  querying "username [$ne]= wwwwww":</li>
+			<li>I got all data from the database by querying "username [$ne]= wwwwww":</li>
 			<img src = "injection.png" height="250" width="750"/>
 			<li>
-				Resolution: Similar to the first one, the developer should validate the user's query string. Removing
-				all special characters would solve the issue.
+				Resolution: Similar to the first one, the developer should validate the user's query request before searching for items in the database. The developer should add code that reject query ket that begins with $ since all query
+				operators start with $.
 			</li>
 		</ul>
 		<br>
@@ -87,20 +89,20 @@
 		<ul>
 			<li>Location: the post('/submit') route where the server gets data from the user and sent it to the database</li>
 			<li>
-				Severity: This is highly severe since anyone in the world can send post requests to the website and it will
-				accept all requests.
+				Severity: This is highly severe since anyone in the world can send post and get requests to the website and it will
+				accept all requests. Anyone in the world can send data, which may potentially be malicious
 			</li>
 			<li>
-				Description: CORS is turned on for any origin, which allows anyone to add data to the database. For example, using
-				curl from my own terminal allows me to input data
+				Description: CORS is turned on for any origin, which allows anyone to access the server and thus add data to the 
+				database. For example, using curl from my own terminal allows me to input data.
 			</li>
-			<li>Sending a request from my own terminal</li>
+			<li>Sending a request from my own terminal:</li>
 			<img src = "curl.png" height="50" width="400"/>
-			<li>The data was successfully sent to the database</li>
+			<li>The data was successfully sent to the database:</li>
 			<img src = "my_data.png" height="100" width="350"/>
-			<li>This line allows access from any origin</li>
+			<li>This line allows access from any origin:</li>
 			<img src = "cors.png" height="25" width="200"/>
-			<li>Resolution: The developer should allow access from certain origins.</li>
+			<li>Resolution: The developer should allow access only from certain origins.</li>
 		</ul>
 	</ul>
 
@@ -108,7 +110,8 @@
 	<p>
 		Although the website does all the functions it needs to do, the level of security is quite low. In the future, the developer
 		can consider adding more input validation features to prevent malicious input. Furthermore, I would also add a user
-		authentication feature so that only certain people get access to the website.
+		authentication feature so that only certain people get access to the website, which would makes it possible to filter 
+		potentially dangerous users. It would also make it easier for the developer to keep track of who has access to the website.
 	</p>
 
 	<br>
@@ -116,6 +119,7 @@
 	<p>I used the following sources I found online:</p>
 	<ul>
 		<li><a href="https://blog.detectify.com/2015/12/16/what-is-cross-site-scripting-and-how-can-you-fix-it">https://blog.detectify.com/2015/12/16/what-is-cross-site-scripting-and-how-can-you-fix-it</a></li>
+		<li><a href="https://www.synopsys.com/blogs/software-security/preventing-common-mean-stack-vulnerabilities/">https://www.synopsys.com/blogs/software-security/preventing-common-mean-stack-vulnerabilities/</a></li>
 	</ul>
 </body>
 </html>
